@@ -1,0 +1,111 @@
+/* src/main/frontend/src/app/supply-chain/supply-chain.component.scss */
+.supply-chain-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0 16px;
+    flex: 1;
+  }
+}
+
+.form-card,
+.status-card,
+.target-card {
+  margin-bottom: 24px;
+}
+
+.date-form,
+.target-form {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.loading {
+  margin: 32px 0;
+  text-align: center;
+}
+
+.error-message {
+  margin: 32px 0;
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  color: #c62828;
+}
+
+.status-item,
+.stage-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  span {
+    flex: 1;
+    color: #666;
+  }
+
+  strong {
+    flex: 1;
+  }
+}
+
+.progress-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+
+  mat-progress-bar {
+    flex: 1;
+  }
+
+  .progress-value {
+    margin-left: 8px;
+    min-width: 45px;
+    text-align: right;
+  }
+}
+
+.on-track {
+  color: #2e7d32;
+}
+
+.off-track {
+  color: #c62828;
+}
+
+h2 {
+  margin-top: 32px;
+  margin-bottom: 16px;
+  color: #555;
+}
+
+.stages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .date-form,
+  .target-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stages-grid {
+    grid-template-columns: 1fr;
+  }
+}

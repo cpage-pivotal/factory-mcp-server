@@ -1,0 +1,151 @@
+.metrics-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0 16px;
+    flex: 1;
+  }
+}
+
+.filter-card,
+.summary-card {
+  margin-bottom: 24px;
+}
+
+.filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+
+    mat-form-field {
+      flex: 1;
+    }
+
+    button {
+      align-self: flex-end;
+    }
+  }
+}
+
+.loading {
+  margin: 32px 0;
+  text-align: center;
+}
+
+.error-message {
+  margin: 32px 0;
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  color: #c62828;
+}
+
+.no-data {
+  margin: 32px 0;
+  padding: 24px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  text-align: center;
+  color: #757575;
+}
+
+.summary-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+
+  .summary-item {
+    flex: 1;
+    min-width: 200px;
+    padding: 16px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    text-align: center;
+
+    .summary-label {
+      font-size: 14px;
+      color: #757575;
+      margin-bottom: 8px;
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+  }
+}
+
+h2 {
+  margin-top: 32px;
+  margin-bottom: 16px;
+  color: #555;
+}
+
+.stages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.metrics-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  span {
+    flex: 1;
+    color: #666;
+  }
+
+  strong {
+    flex: 1;
+  }
+}
+
+.progress-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+
+  mat-progress-bar {
+    flex: 1;
+  }
+
+  .progress-value {
+    margin-left: 8px;
+    min-width: 45px;
+    text-align: right;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-form .form-row {
+    flex-direction: column;
+
+    button {
+      align-self: stretch;
+    }
+  }
+
+  .summary-content {
+    flex-direction: column;
+  }
+
+  .stages-grid {
+    grid-template-columns: 1fr;
+  }
+}

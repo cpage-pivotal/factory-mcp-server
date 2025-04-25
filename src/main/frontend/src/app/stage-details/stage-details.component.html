@@ -1,0 +1,127 @@
+<div class="stage-container">
+  <div class="page-header">
+    <button mat-icon-button color="primary" (click)="goToDashboard()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 *ngIf="stageHealth">{{ stageHealth.stageName }} Details</h1>
+    <h1 *ngIf="!stageHealth">Stage Details</h1>
+
+    <button mat-icon-button color="primary" (click)="refreshData()" [disabled]="loading">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p>Loading stage data...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>Error loading data. Please try again later.</p>
+  </div>
+
+  <div *ngIf="!loading && !error && stageHealth" class="stage-details">
+    <!-- Stage Health Overview -->
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>Stage Health Overview</mat-card-title>
+        <mat-card-subtitle>Stage {{ stageHealth.sequenceOrder }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="health-score">
+          <span>Overall Health Score:</span>
+          <div class="progress-container">
+            <mat-progress-bar
+              [color]="getHealthColor(stageHealth.overallHealthScore)"
+              mode="determinate"
+              [value]="stageHealth.overallHealthScore">
+            </mat-progress-bar>
+            <span class="progress-value">{{ stageHealth.overallHealthScore | number:'1.0-1' }}%</span>
+          </div>
+        </div>
+
+        <div class="devices-status">
+          <span>Operational Devices:</span>
+          <strong>{{ stageHealth.operationalDevices }} / {{ stageHealth.totalDevices }}</strong>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Production Output -->
+    <mat-card class="production-card" *ngIf="productionOutput">
+      <mat-card-header>
+        <mat-card-title>Today's Production</mat-card-title>
+        <mat-card-subtitle>{{ productionOutput.startTime | date: 'short' }} to {{ productionOutput.endTime | date: 'short' }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="production-item">
+          <span>Units Produced:</span>
+          <strong>{{ productionOutput.unitsProduced }}</strong>
+        </div>
+
+        <div class="production-item">
+          <span>Defective Units:</span>
+          <strong>{{ productionOutput.defectiveUnits }}</strong>
+        </div>
+
+        <div class="production-item">
+          <span>Effective Yield:</span>
+          <div class="progress-container">
+            <mat-progress-bar
+              [color]="getHealthColor(productionOutput.effectiveYieldPercentage)"
+              mode="determinate"
+              [value]="productionOutput.effectiveYieldPercentage">
+            </mat-progress-bar>
+            <span class="progress-value">{{ productionOutput.effectiveYieldPercentage | number:'1.0-1' }}%</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- IoT Devices -->
+    <h2>IoT Devices</h2>
+
+    <div class="devices-grid">
+      <mat-card class="device-card" *ngFor="let device of stageHealth.devices">
+        <mat-card-header>
+          <div [class]="'device-status ' + getDeviceStatusClass(device)"></div>
+          <mat-card-title>{{ device.name }}</mat-card-title>
+          <mat-card-subtitle>{{ device.deviceId }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="device-type">
+            <span>Type:</span>
+            <mat-chip>{{ device.deviceType }}</mat-chip>
+          </div>
+
+          <div class="device-health">
+            <span>Health Score:</span>
+            <div class="progress-container">
+              <mat-progress-bar
+                [color]="getHealthColor(device.healthScore)"
+                mode="determinate"
+                [value]="device.healthScore">
+              </mat-progress-bar>
+              <span class="progress-value">{{ device.healthScore | number:'1.0-1' }}%</span>
+            </div>
+          </div>
+
+          <div class="device-status-text">
+            <span>Status:</span>
+            <strong [class.online]="device.operational" [class.offline]="!device.operational">
+              {{ device.operational ? 'Operational' : 'Offline' }}
+            </strong>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="viewDeviceDetails(device.id)">
+            View Details
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

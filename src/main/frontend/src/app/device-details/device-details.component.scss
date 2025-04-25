@@ -1,0 +1,125 @@
+.device-container {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0 16px;
+    flex: 1;
+  }
+}
+
+.loading {
+  margin: 32px 0;
+  text-align: center;
+}
+
+.error-message {
+  margin: 32px 0;
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  color: #c62828;
+}
+
+.success-message {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+  color: #2e7d32;
+  text-align: center;
+}
+
+.info-card,
+.update-card,
+.metrics-card {
+  margin-bottom: 24px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  span {
+    flex: 1;
+    color: #666;
+  }
+
+  strong {
+    flex: 1;
+  }
+}
+
+.online {
+  color: #4caf50;
+}
+
+.offline {
+  color: #f44336;
+}
+
+.progress-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+
+  mat-progress-bar {
+    flex: 1;
+  }
+
+  .progress-value {
+    margin-left: 8px;
+    min-width: 45px;
+    text-align: right;
+  }
+}
+
+.health-form,
+.metrics-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .form-row {
+    display: flex;
+    align-items: center;
+
+    span {
+      flex: 1;
+      color: #666;
+    }
+
+    mat-slide-toggle,
+    mat-form-field {
+      flex: 1;
+    }
+
+    mat-form-field {
+      width: 100%;
+    }
+  }
+
+  button {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .health-form .form-row,
+  .metrics-form .form-row {
+    flex-direction: column;
+    align-items: stretch;
+
+    span {
+      margin-bottom: 8px;
+    }
+  }
+}

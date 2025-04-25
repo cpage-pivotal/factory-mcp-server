@@ -1,0 +1,154 @@
+<div class="device-container">
+  <div class="page-header">
+    <button mat-icon-button color="primary" (click)="goBackToStage()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 *ngIf="device">{{ device.name }} Details</h1>
+    <h1 *ngIf="!device">Device Details</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p>Loading device data...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>Error loading data. Please try again later.</p>
+  </div>
+
+  <div *ngIf="!loading && !error && device" class="device-details">
+    <!-- Device Information -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Device Information</mat-card-title>
+        <mat-card-subtitle>{{ device.deviceId }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="info-item">
+          <span>Type:</span>
+          <strong>{{ device.deviceType }}</strong>
+        </div>
+
+        <div class="info-item">
+          <span>Status:</span>
+          <strong [class.online]="device.operational" [class.offline]="!device.operational">
+            {{ device.operational ? 'Operational' : 'Offline' }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span>Health Score:</span>
+          <div class="progress-container">
+            <mat-progress-bar
+              [color]="getHealthColor(device.healthScore)"
+              mode="determinate"
+              [value]="device.healthScore">
+            </mat-progress-bar>
+            <span class="progress-value">{{ device.healthScore | number:'1.0-1' }}%</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Update Device Health -->
+    <mat-card class="update-card">
+      <mat-card-header>
+        <mat-card-title>Update Device Health</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="deviceForm" (ngSubmit)="updateDeviceHealth()" class="health-form">
+          <div class="form-row">
+            <span>Operational Status:</span>
+            <mat-slide-toggle formControlName="operational" color="primary">
+              {{ deviceForm.get('operational')?.value ? 'Operational' : 'Offline' }}
+            </mat-slide-toggle>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="fill">
+              <mat-label>Health Score (0-100)</mat-label>
+              <input matInput type="number" formControlName="healthScore">
+              <mat-error *ngIf="deviceForm.get('healthScore')?.hasError('required')">
+                Health score is required
+              </mat-error>
+              <mat-error *ngIf="deviceForm.get('healthScore')?.hasError('min')">
+                Health score must be at least 0
+              </mat-error>
+              <mat-error *ngIf="deviceForm.get('healthScore')?.hasError('max')">
+                Health score must be at most 100
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <button mat-raised-button color="primary" type="submit" [disabled]="deviceForm.invalid">
+            Update Health
+          </button>
+
+          <div *ngIf="updateSuccess" class="success-message">
+            Device health updated successfully!
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Record Production Metrics -->
+    <mat-card class="metrics-card">
+      <mat-card-header>
+        <mat-card-title>Record Production Metrics</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="metricsForm" (ngSubmit)="recordMetrics()" class="metrics-form">
+          <div class="form-row">
+            <mat-form-field appearance="fill">
+              <mat-label>Units Produced</mat-label>
+              <input matInput type="number" formControlName="unitsProduced">
+              <mat-error *ngIf="metricsForm.get('unitsProduced')?.hasError('required')">
+                Units produced is required
+              </mat-error>
+              <mat-error *ngIf="metricsForm.get('unitsProduced')?.hasError('min')">
+                Units produced must be at least 0
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="fill">
+              <mat-label>Defective Units</mat-label>
+              <input matInput type="number" formControlName="defectiveUnits">
+              <mat-error *ngIf="metricsForm.get('defectiveUnits')?.hasError('required')">
+                Defective units is required
+              </mat-error>
+              <mat-error *ngIf="metricsForm.get('defectiveUnits')?.hasError('min')">
+                Defective units must be at least 0
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="fill">
+              <mat-label>Cycle Time (minutes)</mat-label>
+              <input matInput type="number" formControlName="cycleTimeMinutes">
+              <mat-error *ngIf="metricsForm.get('cycleTimeMinutes')?.hasError('required')">
+                Cycle time is required
+              </mat-error>
+              <mat-error *ngIf="metricsForm.get('cycleTimeMinutes')?.hasError('min')">
+                Cycle time must be at least 0.1 minutes
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <button mat-raised-button color="primary" type="submit" [disabled]="metricsForm.invalid">
+            Record Metrics
+          </button>
+
+          <div *ngIf="metricsSuccess" class="success-message">
+            Production metrics recorded successfully!
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

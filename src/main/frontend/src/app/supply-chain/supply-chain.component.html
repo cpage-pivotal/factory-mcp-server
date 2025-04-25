@@ -1,0 +1,148 @@
+<div class="supply-chain-container">
+  <div class="page-header">
+    <button mat-icon-button color="primary" (click)="goToDashboard()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Supply Chain Management</h1>
+  </div>
+
+  <!-- Date Selection Form -->
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Select Date</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="dateForm" (ngSubmit)="loadStatusByDate()" class="date-form">
+        <mat-form-field appearance="fill">
+          <mat-label>Choose a date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="date">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="dateForm.invalid">
+          Load Data
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <div *ngIf="loading" class="loading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p>Loading data...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>Error loading data. Please try again later.</p>
+  </div>
+
+  <div *ngIf="!loading && !error && supplyChainStatus">
+    <!-- Supply Chain Status -->
+    <mat-card class="status-card">
+      <mat-card-header>
+        <mat-card-title>Supply Chain Status</mat-card-title>
+        <mat-card-subtitle>{{ supplyChainStatus.date | date }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="status-item">
+          <span>Daily Target:</span>
+          <strong>{{ supplyChainStatus.dailyTarget }} units</strong>
+        </div>
+
+        <div class="status-item">
+          <span>Current Output:</span>
+          <strong>{{ supplyChainStatus.currentOutput }} units</strong>
+        </div>
+
+        <div class="status-item">
+          <span>Projected End of Day:</span>
+          <strong>{{ supplyChainStatus.projectedEndOfDayOutput }} units</strong>
+        </div>
+
+        <div class="status-item">
+          <span>Target Completion:</span>
+          <div class="progress-container">
+            <mat-progress-bar
+              [color]="getStatusColor(supplyChainStatus.targetCompletionPercentage)"
+              mode="determinate"
+              [value]="supplyChainStatus.targetCompletionPercentage">
+            </mat-progress-bar>
+            <span class="progress-value">{{ supplyChainStatus.targetCompletionPercentage | number:'1.0-1' }}%</span>
+          </div>
+        </div>
+
+        <div class="status-item">
+          <span>Status:</span>
+          <strong [class.on-track]="supplyChainStatus.onTrack"
+                  [class.off-track]="!supplyChainStatus.onTrack">
+            {{ supplyChainStatus.onTrack ? 'On Track' : 'Off Track' }}
+          </strong>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Update Daily Target -->
+    <mat-card class="target-card">
+      <mat-card-header>
+        <mat-card-title>Update Daily Target</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="targetForm" (ngSubmit)="updateDailyTarget()" class="target-form">
+          <mat-form-field appearance="fill">
+            <mat-label>Target Units</mat-label>
+            <input matInput type="number" formControlName="targetUnits">
+            <mat-error *ngIf="targetForm.get('targetUnits')?.hasError('required')">
+              Target units is required
+            </mat-error>
+            <mat-error *ngIf="targetForm.get('targetUnits')?.hasError('min')">
+              Target must be greater than 0
+            </mat-error>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit" [disabled]="targetForm.invalid">
+            Update Target
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Stage Outputs -->
+    <h2>Production by Stage</h2>
+
+    <div class="stages-grid">
+      <mat-card class="stage-card" *ngFor="let stage of supplyChainStatus.stageOutputs">
+        <mat-card-header>
+          <mat-card-title>{{ stage.stageName }}</mat-card-title>
+          <mat-card-subtitle>Stage {{ stage.stageOrder }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="stage-item">
+            <span>Units Produced:</span>
+            <strong>{{ stage.unitsProduced }}</strong>
+          </div>
+
+          <div class="stage-item">
+            <span>Defective Units:</span>
+            <strong>{{ stage.defectiveUnits }}</strong>
+          </div>
+
+          <div class="stage-item">
+            <span>Effective Yield:</span>
+            <div class="progress-container">
+              <mat-progress-bar
+                [color]="getStatusColor(stage.effectiveYieldPercentage)"
+                mode="determinate"
+                [value]="stage.effectiveYieldPercentage">
+              </mat-progress-bar>
+              <span class="progress-value">{{ stage.effectiveYieldPercentage | number:'1.0-1' }}%</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

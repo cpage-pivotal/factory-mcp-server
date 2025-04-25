@@ -1,0 +1,133 @@
+<!-- src/main/frontend/src/app/production-metrics/production-metrics.component.html -->
+<div class="metrics-container">
+  <div class="page-header">
+    <button mat-icon-button color="primary" (click)="goToDashboard()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Production Metrics Analysis</h1>
+  </div>
+
+  <!-- Filter Form -->
+  <mat-card class="filter-card">
+    <mat-card-header>
+      <mat-card-title>Filter Metrics</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="metricsForm" (ngSubmit)="loadMetrics()" class="filter-form">
+        <div class="form-row">
+          <mat-form-field appearance="fill">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="fill">
+            <mat-label>Manufacturing Stage</mat-label>
+            <mat-select formControlName="stageOrder">
+              <mat-option [value]="0">All Stages</mat-option>
+              <mat-option *ngFor="let stage of stages" [value]="stage.sequenceOrder">
+                {{ stage.stageName }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit" [disabled]="metricsForm.invalid">
+            Apply Filter
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <div *ngIf="loading" class="loading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p>Loading metrics data...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>Error loading data. Please try again later.</p>
+  </div>
+
+  <div *ngIf="!loading && !error && productionOutputs.length > 0">
+    <!-- Summary Card -->
+    <mat-card class="summary-card">
+      <mat-card-header>
+        <mat-card-title>Production Summary</mat-card-title>
+        <mat-card-subtitle>{{ formatDateRange() }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content class="summary-content">
+        <div class="summary-item">
+          <div class="summary-label">Total Production</div>
+          <div class="summary-value">{{ getTotalProduction() }} units</div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Good Units</div>
+          <div class="summary-value">{{ getTotalGoodUnits() }} units</div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Total Defects</div>
+          <div class="summary-value">{{ getTotalDefects() }} units</div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Overall Yield</div>
+          <div class="summary-value">{{ getOverallYield() | number:'1.0-1' }}%</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Production by Stage -->
+    <h2>Production by Stage</h2>
+
+    <div class="stages-grid">
+      <mat-card class="stage-card" *ngFor="let output of productionOutputs">
+        <mat-card-header>
+          <mat-card-title>{{ output.stageName }}</mat-card-title>
+          <mat-card-subtitle>Stage {{ output.stageOrder }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="metrics-item">
+            <span>Units Produced:</span>
+            <strong>{{ output.unitsProduced }}</strong>
+          </div>
+
+          <div class="metrics-item">
+            <span>Defective Units:</span>
+            <strong>{{ output.defectiveUnits }}</strong>
+          </div>
+
+          <div class="metrics-item">
+            <span>Effective Yield:</span>
+            <div class="progress-container">
+              <mat-progress-bar
+                [color]="getYieldColor(output.effectiveYieldPercentage)"
+                mode="determinate"
+                [value]="output.effectiveYieldPercentage">
+              </mat-progress-bar>
+              <span class="progress-value">{{ output.effectiveYieldPercentage | number:'1.0-1' }}%</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !error && productionOutputs.length === 0" class="no-data">
+    <p>No production data available for the selected period and stage.</p>
+  </div>
+</div>

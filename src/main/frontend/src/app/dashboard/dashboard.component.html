@@ -1,0 +1,227 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Factory Management Dashboard</h1>
+    <div class="dashboard-actions">
+      <button mat-icon-button color="primary" matTooltip="Auto-refresh every 30 seconds" (click)="toggleAutoRefresh()">
+        <mat-icon [color]="autoRefresh ? 'accent' : ''">autorenew</mat-icon>
+      </button>
+      <button mat-icon-button color="primary" matTooltip="Refresh now" (click)="refreshData()" [disabled]="loading">
+        <mat-icon [@refreshRotate]="refreshState">refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading" @fadeIn>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message" @fadeIn>
+    <p>Error loading data. Please try again later.</p>
+  </div>
+
+  <div *ngIf="!loading && !error" class="dashboard-content" @fadeIn>
+    <!-- KPI Cards Row -->
+    <div class="kpi-cards" *ngIf="supplyChainStatus">
+      <mat-card class="kpi-card production-card">
+        <div class="kpi-icon">
+          <mat-icon>precision_manufacturing</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-label">Current Production</div>
+          <div class="kpi-value" [@counterAnimation]="displayCurrentOutput">
+            {{ displayCurrentOutput }}
+            <span class="kpi-unit">units</span>
+            <mat-icon [class]="getTrendClass(productionTrend)">{{ getTrendIcon(productionTrend) }}</mat-icon>
+          </div>
+          <div class="kpi-progress">
+            <mat-progress-bar
+              [color]="getStatusColor(displayTargetCompletion)"
+              mode="determinate"
+              [value]="displayTargetCompletion">
+            </mat-progress-bar>
+            <span class="progress-value">{{ displayTargetCompletion | number:'1.0-1' }}% of target</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card target-card">
+        <div class="kpi-icon">
+          <mat-icon>flag</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-label">Daily Target</div>
+          <div class="kpi-value">
+            {{ supplyChainStatus.dailyTarget }}
+            <span class="kpi-unit">units</span>
+          </div>
+          <div class="kpi-secondary">
+            <span>Projected completion:</span>
+            <strong [class.on-track]="supplyChainStatus.onTrack"
+                    [class.off-track]="!supplyChainStatus.onTrack">
+              {{ supplyChainStatus.onTrack ? 'On Track' : 'Off Track' }}
+            </strong>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card forecast-card">
+        <div class="kpi-icon">
+          <mat-icon>timeline</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-label">End-of-Day Forecast</div>
+          <div class="kpi-value" [@counterAnimation]="displayProjectedOutput">
+            {{ displayProjectedOutput }}
+            <span class="kpi-unit">units</span>
+          </div>
+          <div class="kpi-secondary" *ngIf="supplyChainStatus.dailyTarget > 0">
+            <span>vs Target:</span>
+            <strong [class.positive]="displayProjectedOutput >= supplyChainStatus.dailyTarget"
+                    [class.negative]="displayProjectedOutput < supplyChainStatus.dailyTarget">
+              {{ (displayProjectedOutput / supplyChainStatus.dailyTarget * 100) | number:'1.0-1' }}%
+            </strong>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card quality-card">
+        <div class="kpi-icon">
+          <mat-icon>verified</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-label">Quality Rate</div>
+          <div class="kpi-value">
+            {{ 100 - defectRate | number:'1.0-1' }}
+            <span class="kpi-unit">%</span>
+          </div>
+          <div class="kpi-secondary">
+            <span>Defect rate:</span>
+            <strong [class.positive]="defectRate < 3"
+                    [class.warning]="defectRate >= 3 && defectRate < 5"
+                    [class.negative]="defectRate >= 5">
+              {{ defectRate | number:'1.0-1' }}%
+            </strong>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Supply Chain Status Card -->
+    <mat-card class="status-card detailed-card" *ngIf="supplyChainStatus">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>inventory_2</mat-icon>
+          Supply Chain Status
+        </mat-card-title>
+        <mat-card-subtitle>{{ supplyChainStatus.date | date }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="status-item">
+          <span>Current Output:</span>
+          <div class="value-container">
+            <strong>{{ supplyChainStatus.currentOutput }} units</strong>
+            <mat-icon [class]="getTrendClass(productionTrend)">{{ getTrendIcon(productionTrend) }}</mat-icon>
+          </div>
+        </div>
+
+        <div class="status-item">
+          <span>Projected End of Day:</span>
+          <strong>{{ supplyChainStatus.projectedEndOfDayOutput }} units</strong>
+        </div>
+
+        <div class="status-item">
+          <span>Target Completion:</span>
+          <div class="progress-container">
+            <mat-progress-bar
+              [color]="getStatusColor(supplyChainStatus.targetCompletionPercentage)"
+              mode="determinate"
+              [value]="supplyChainStatus.targetCompletionPercentage">
+            </mat-progress-bar>
+            <span class="progress-value">{{ supplyChainStatus.targetCompletionPercentage | number:'1.0-1' }}%</span>
+          </div>
+        </div>
+
+        <div class="status-item">
+          <span>Status:</span>
+          <strong [class.on-track]="supplyChainStatus.onTrack"
+                  [class.off-track]="!supplyChainStatus.onTrack">
+            {{ supplyChainStatus.onTrack ? 'On Track' : 'Off Track' }}
+          </strong>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button color="primary" [routerLink]="['/supply-chain']">
+          View Details
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Manufacturing Stages Section -->
+    <div class="section-header">
+      <h2>Manufacturing Stages</h2>
+      <div class="section-actions">
+        <button mat-button color="primary" [routerLink]="['/metrics']">
+          <mat-icon>analytics</mat-icon>
+          View All Metrics
+        </button>
+      </div>
+    </div>
+
+    <div class="stages-grid">
+      <mat-card class="stage-card" *ngFor="let stage of stagesHealth">
+        <mat-card-header>
+          <div class="stage-icon" [class.warning]="stage.overallHealthScore < 80">
+            <mat-icon>settings</mat-icon>
+          </div>
+          <mat-card-title>{{ stage.stageName }}</mat-card-title>
+          <mat-card-subtitle>
+            Stage {{ stage.sequenceOrder }}
+            <mat-icon
+              class="status-indicator"
+              [class.operational]="stage.operationalDevices === stage.totalDevices"
+              [class.warning]="stage.operationalDevices < stage.totalDevices && stage.operationalDevices > 0"
+              [class.critical]="stage.operationalDevices === 0">
+              {{ stage.operationalDevices === stage.totalDevices ? 'check_circle' :
+              stage.operationalDevices === 0 ? 'error' : 'warning' }}
+            </mat-icon>
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="health-score">
+            <span>Health Score:</span>
+            <div class="progress-container">
+              <mat-progress-bar
+                [color]="getHealthColor(displayHealthScores[stage.stageId])"
+                mode="determinate"
+                [value]="displayHealthScores[stage.stageId]">
+              </mat-progress-bar>
+              <span class="progress-value">{{ displayHealthScores[stage.stageId] | number:'1.0-1' }}%</span>
+            </div>
+          </div>
+
+          <div class="devices-status">
+            <span>Devices:</span>
+            <strong>
+              <span [class.operational]="stage.operationalDevices === stage.totalDevices"
+                    [class.warning]="stage.operationalDevices < stage.totalDevices && stage.operationalDevices > 0"
+                    [class.critical]="stage.operationalDevices === 0">
+                {{ getOperationalRatio(stage) }} operational
+              </span>
+            </strong>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="viewStageDetails(stage.stageId)">
+            <mat-icon>visibility</mat-icon>
+            View Details
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

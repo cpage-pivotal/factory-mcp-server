@@ -1,0 +1,22 @@
+<div class="app-container">
+  <mat-toolbar color="primary">
+    <span>{{ title }}</span>
+    <span class="toolbar-spacer"></span>
+    <button mat-button routerLink="/dashboard">
+      <mat-icon>dashboard</mat-icon>
+      Dashboard
+    </button>
+    <button mat-button routerLink="/supply-chain">
+      <mat-icon>timeline</mat-icon>
+      Supply Chain
+    </button>
+    <button mat-button routerLink="/metrics">
+      <mat-icon>analytics</mat-icon>
+      Production Metrics
+    </button>
+  </mat-toolbar>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

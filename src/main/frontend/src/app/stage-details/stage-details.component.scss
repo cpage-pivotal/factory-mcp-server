@@ -1,0 +1,122 @@
+.stage-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0 16px;
+    flex: 1;
+  }
+}
+
+.loading {
+  margin: 32px 0;
+  text-align: center;
+}
+
+.error-message {
+  margin: 32px 0;
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  color: #c62828;
+}
+
+.overview-card,
+.production-card {
+  margin-bottom: 24px;
+}
+
+.health-score,
+.devices-status,
+.production-item {
+  margin-bottom: 16px;
+
+  span {
+    display: block;
+    margin-bottom: 8px;
+    color: #666;
+  }
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+
+  mat-progress-bar {
+    flex: 1;
+  }
+
+  .progress-value {
+    margin-left: 8px;
+    min-width: 45px;
+    text-align: right;
+  }
+}
+
+h2 {
+  margin-top: 32px;
+  margin-bottom: 16px;
+  color: #555;
+}
+
+.devices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.device-card {
+  height: 100%;
+
+  .device-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+
+  .status-online {
+    background-color: #4caf50;
+  }
+
+  .status-offline {
+    background-color: #f44336;
+  }
+
+  .status-warning {
+    background-color: #ff9800;
+  }
+
+  .device-type,
+  .device-health,
+  .device-status-text {
+    margin-bottom: 16px;
+
+    span {
+      display: block;
+      margin-bottom: 8px;
+      color: #666;
+    }
+  }
+
+  .online {
+    color: #4caf50;
+  }
+
+  .offline {
+    color: #f44336;
+  }
+}
+
+@media (max-width: 600px) {
+  .devices-grid {
+    grid-template-columns: 1fr;
+  }
+}
