@@ -1,7 +1,6 @@
 package org.tanzu.factory.supplychain;
 
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
+import org.springaicommunity.mcp.annotation.McpTool;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tanzu.factory.factory.FactoryService;
@@ -30,9 +29,7 @@ public class SupplyChainService {
     }
 
     @Transactional
-//    @Tool(description = "Sets or updates the daily production target for a specific date, which is used to track production performance and forecasting")
-    public DailyTarget setDailyTarget(@ToolParam(description = "The date for which to set the daily production target") LocalDate date,
-                                      @ToolParam(description = "The number of units to be produced on the specified date") int targetUnits) {
+    public DailyTarget setDailyTarget(LocalDate date, int targetUnits) {
         Optional<DailyTarget> existingTarget = targetRepository.findByDate(date);
 
         if (existingTarget.isPresent()) {
@@ -45,19 +42,19 @@ public class SupplyChainService {
         }
     }
 
-    @Tool(description = "Retrieves the daily production target for a specific date, returning a default target of 0 if none exists")
-    public DailyTarget getDailyTarget(@ToolParam(description = "The date for which to retrieve the daily production target") LocalDate date) {
+    @McpTool(description = "Retrieves the daily production target for a specific date, returning a default target of 0 if none exists")
+    public DailyTarget getDailyTarget(LocalDate date) {
         return targetRepository.findByDate(date)
                 .orElse(new DailyTarget(date, 0)); // Return empty target if none exists
     }
 
-    @Tool(description = "Gets the current supply chain status for today, including current production output, projections, target completion percentage, and whether production is on track")
+    @McpTool(description = "Gets the current supply chain status for today, including current production output, projections, target completion percentage, and whether production is on track")
     public SupplyChainStatusDto getCurrentSupplyChainStatus() {
         return getSupplyChainStatus(LocalDate.now());
     }
 
-    @Tool(description = "Gets detailed supply chain status for a specific date, including production metrics, target completion, and projections based on current production rates")
-    public SupplyChainStatusDto getSupplyChainStatus(@ToolParam(description = "The date for which to retrieve the supply chain status") LocalDate date) {
+    @McpTool(description = "Gets detailed supply chain status for a specific date, including production metrics, target completion, and projections based on current production rates")
+    public SupplyChainStatusDto getSupplyChainStatus(LocalDate date) {
         LocalDateTime now = LocalDateTime.now();
 
         // Get shift start and end times for the given date

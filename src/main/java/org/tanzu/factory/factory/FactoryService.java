@@ -1,7 +1,6 @@
 package org.tanzu.factory.factory;
 
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
+import org.springaicommunity.mcp.annotation.McpTool;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,7 @@ public class FactoryService {
         this.metricsRepository = metricsRepository;
     }
 
-    @Tool(description = "Retrieves the health status of all manufacturing stages in the factory, including overall health scores and device status information for each stage")
+    @McpTool(description = "Retrieves the health status of all manufacturing stages in the factory, including overall health scores and device status information for each stage")
     public List<StageHealthDto> getManufacturingStagesHealth() {
         List<ManufacturingStage> stages = stageRepository.findAll();
         return stages.stream()
@@ -34,8 +33,8 @@ public class FactoryService {
                 .collect(Collectors.toList());
     }
 
-    @Tool(description = "Gets detailed health information for a specific manufacturing stage, including its overall health score, device statuses, and operational metrics")
-    public StageHealthDto getStageHealth(@ToolParam(description = "The unique identifier of the manufacturing stage to retrieve health information for") Long stageId) {
+    @McpTool(description = "Gets detailed health information for a specific manufacturing stage, including its overall health score, device statuses, and operational metrics")
+    public StageHealthDto getStageHealth(Long stageId) {
         Optional<ManufacturingStage> stageOpt = stageRepository.findById(stageId);
         return stageOpt.map(this::convertToStageHealthDto).orElse(null);
     }
@@ -78,10 +77,7 @@ public class FactoryService {
     }
 
     @Transactional
-//    @Tool(description = "Updates the operational status and health score of a specific IoT device in the factory")
-    public void updateDeviceHealth(@ToolParam(description = "The unique identifier of the IoT device to update") Long deviceId,
-                                   @ToolParam(description = "Indicates whether the device is currently operational (true) or offline (false)") boolean operational,
-                                   @ToolParam(description = "The health score of the device on a scale from 0-100, where 100 represents perfect health") double healthScore) {
+    public void updateDeviceHealth(Long deviceId, boolean operational, double healthScore) {
         deviceRepository.findById(deviceId).ifPresent(device -> {
             device.setOperational(operational);
             device.setHealthScore(healthScore);
@@ -89,10 +85,8 @@ public class FactoryService {
         });
     }
 
-    @Tool(description = "Retrieves production output metrics for a specific manufacturing stage during a specified time period, including units produced, defective units, and effective yield")
-    public ProductionOutputDto getStageOutput(@ToolParam(description = "The sequence order number of the manufacturing stage (e.g., 1 for Body Assembly, 2 for Paint Shop, etc.)") int stageOrder,
-                                              @ToolParam(description = "The start timestamp for the production metrics period") LocalDateTime startTime,
-                                              @ToolParam(description = "The end timestamp for the production metrics period") LocalDateTime endTime) {
+    @McpTool(description = "Retrieves production output metrics for a specific manufacturing stage during a specified time period, including units produced, defective units, and effective yield")
+    public ProductionOutputDto getStageOutput(int stageOrder, LocalDateTime startTime, LocalDateTime endTime) {
         ManufacturingStage stage = stageRepository.findBySequenceOrder(stageOrder);
         if (stage == null) {
             return null;
@@ -122,9 +116,8 @@ public class FactoryService {
         );
     }
 
-    @Tool(description = "Retrieves production output metrics for all manufacturing stages in the factory during a specified time period")
-    public List<ProductionOutputDto> getAllStagesOutput(@ToolParam(description = "The start timestamp for the production metrics period") LocalDateTime startTime,
-                                                        @ToolParam(description = "The end timestamp for the production metrics period") LocalDateTime endTime) {
+    @McpTool(description = "Retrieves production output metrics for all manufacturing stages in the factory during a specified time period")
+    public List<ProductionOutputDto> getAllStagesOutput(LocalDateTime startTime, LocalDateTime endTime) {
         List<ManufacturingStage> stages = stageRepository.findAll();
         List<ProductionOutputDto> outputs = new ArrayList<>();
 
@@ -139,11 +132,7 @@ public class FactoryService {
     }
 
     @Transactional
-//    @Tool(description = "Records production metrics for a specific IoT device, including units produced, defective units, and cycle time")
-    public void recordProductionMetrics(@ToolParam(description = "The unique identifier of the IoT device for which to record metrics") Long deviceId,
-                                        @ToolParam(description = "The number of units produced by the device") int unitsProduced,
-                                        @ToolParam(description = "The number of defective units produced by the device") int defectiveUnits,
-                                        @ToolParam(description = "The time in minutes required to produce one unit") double cycleTimeMinutes) {
+    public void recordProductionMetrics(Long deviceId, int unitsProduced, int defectiveUnits, double cycleTimeMinutes) {
         deviceRepository.findById(deviceId).ifPresent(device -> {
             ProductionMetrics metrics = new ProductionMetrics(
                     LocalDateTime.now(), unitsProduced, defectiveUnits, cycleTimeMinutes, device);
