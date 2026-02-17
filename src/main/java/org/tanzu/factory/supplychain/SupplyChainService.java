@@ -57,26 +57,23 @@ public class SupplyChainService {
     public SupplyChainStatusDto getSupplyChainStatus(LocalDate date) {
         LocalDateTime now = LocalDateTime.now();
 
-        // Get shift start and end times for the given date
         LocalDateTime shiftStart = LocalDateTime.of(date, SHIFT_START);
         LocalDateTime shiftEnd = LocalDateTime.of(date, SHIFT_END);
 
-        // Ensure we don't query future times
-        LocalDateTime currentEndTime = now.isBefore(shiftEnd) ? now : shiftEnd;
+        // Always query the full shift window so pre-seeded simulation data is included
+        LocalDateTime queryEndTime = shiftEnd;
 
-        // If we're querying a past date, use the full shift time
-        if (date.isBefore(now.toLocalDate())) {
-            currentEndTime = shiftEnd;
-        }
+        // For today, determine how far into the shift we are (for projections)
+        boolean isToday = date.equals(now.toLocalDate());
+        boolean shiftInProgress = isToday && now.isAfter(shiftStart) && now.isBefore(shiftEnd);
 
         // Get the daily target
         DailyTarget target = getDailyTarget(date);
 
-        // Get production outputs for each stage
-        List<ProductionOutputDto> stageOutputs = factoryService.getAllStagesOutput(shiftStart, currentEndTime);
+        // Get production outputs for each stage using the full shift window
+        List<ProductionOutputDto> stageOutputs = factoryService.getAllStagesOutput(shiftStart, queryEndTime);
 
         // Final stage output is our current total production
-        // (assumes stages are ordered and last stage is final assembly)
         int finalStageOrder = stageOutputs.stream()
                 .mapToInt(ProductionOutputDto::stageOrder)
                 .max()
@@ -88,28 +85,24 @@ public class SupplyChainService {
                 .findFirst()
                 .orElse(0);
 
-        // Calculate projected end-of-day output based on current production rate
-        double hoursElapsed = date.equals(now.toLocalDate())
-                ? Duration.between(shiftStart, currentEndTime).toHours() + 1 // Add 1 to avoid division by zero
-                : Duration.between(shiftStart, shiftEnd).toHours();
-
-        double hoursTotal = Duration.between(shiftStart, shiftEnd).toHours();
-
-        int projectedOutput = (int) (currentOutput * (hoursTotal / hoursElapsed));
-
-        // If we're past shift end, projected output is actual output
-        if (now.isAfter(shiftEnd) && date.equals(now.toLocalDate())) {
+        // For projections: if mid-shift, project based on elapsed time; otherwise use actual output
+        int projectedOutput;
+        if (shiftInProgress) {
+            double hoursElapsed = Duration.between(shiftStart, now).toMinutes() / 60.0;
+            double hoursTotal = Duration.between(shiftStart, shiftEnd).toMinutes() / 60.0;
+            projectedOutput = hoursElapsed > 0
+                    ? (int) (currentOutput * (hoursTotal / hoursElapsed))
+                    : currentOutput;
+        } else {
             projectedOutput = currentOutput;
         }
 
-        // Determine if we're on track to meet daily target
         double targetCompletion = target.getTargetUnits() > 0
                 ? (double) currentOutput / target.getTargetUnits() * 100
                 : 100.0;
 
         boolean onTrack = projectedOutput >= target.getTargetUnits();
 
-        // Return a new record instance
         return new SupplyChainStatusDto(
                 date,
                 target.getTargetUnits(),
