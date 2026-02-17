@@ -37,7 +37,7 @@ public class DataInitializer implements CommandLineRunner {
     private static final int MAX_STAGE_UNITS = 170;
     private static final double DEFECT_RATE_MIN = 0.01;
     private static final double DEFECT_RATE_MAX = 0.06;
-    private static final double DEVICE_FAILURE_PROBABILITY = 0.15;
+    private static final double DEVICE_FAILURE_PROBABILITY = 0.25;
     private static final double MIN_HEALTHY_SCORE = 70.0;
     private static final double MIN_DEGRADED_SCORE = 20.0;
     private static final double MAX_DEGRADED_SCORE = 60.0;
