@@ -1,6 +1,6 @@
 ---
 applications:
-  - name: factory
+  - name: dekt-factory-supplychain-mcp
     buildpacks:
       - java_buildpack_offline
     memory: 1G
